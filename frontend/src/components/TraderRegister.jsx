@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Mail, Lock, MapPin, Briefcase, FileText, CheckCircle, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../api/config';
 
 const TraderRegister = ({ onLoginSuccess }) => {
   const [isLogin, setIsLogin] = useState(false);
@@ -35,7 +35,7 @@ const TraderRegister = ({ onLoginSuccess }) => {
         ? { email: formData.email, password: formData.password }
         : { ...formData, crops: formData.crops.split(',').map(c => c.trim()) };
 
-      const res = await axios.post(endpoint, payload);
+      const res = await api.post(endpoint, payload);
       
       localStorage.setItem('traderToken', res.data.token);
       localStorage.setItem('traderData', JSON.stringify(res.data.trader));

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/config';
 import { motion } from 'framer-motion';
 import { Clock, CheckCircle2, XCircle, ChevronRight } from 'lucide-react';
 
@@ -13,7 +13,7 @@ const RequestStatus = () => {
 
   const fetchRequests = async () => {
     try {
-      const res = await axios.get('/api/requests');
+      const res = await api.get('/api/requests');
       setRequests(res.data);
       setLoading(false);
     } catch (err) {

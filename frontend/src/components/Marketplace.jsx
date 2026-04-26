@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/config';
 import { Search, MapPin, TrendingUp, Package, Filter, ChevronRight, Star, ArrowRight } from 'lucide-react';
 import CompanyCard from './CompanyCard';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -28,7 +28,7 @@ const Marketplace = ({ onSelectCompany }) => {
   const fetchCompanies = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`/api/companies${selectedCrop ? `?crop=${selectedCrop}` : ''}`);
+      const res = await api.get(`/api/companies${selectedCrop ? `?crop=${selectedCrop}` : ''}`);
       // Handle different response formats (Array or {value: Array})
       let data = res.data;
       if (data && data.value && Array.isArray(data.value)) {

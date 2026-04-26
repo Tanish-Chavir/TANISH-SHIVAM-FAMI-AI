@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, LayersControl } from 'r
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { MapPin, Navigation, Info, Cloud, Droplets, Wind, Search, Car, Bike, Bus, User, ExternalLink, RefreshCw, Layers, AlertCircle, Map as MapIcon, ChevronRight } from 'lucide-react';
-import axios from 'axios';
+import api from '../api/config';
 
 const { BaseLayer } = LayersControl;
 
@@ -94,8 +94,8 @@ const NearbyMarkets = () => {
       setSearchStatus('Fetching market data...');
       
       const [marketRes, weatherRes] = await Promise.all([
-        axios.get(`/api/nearby-markets?lat=${location.lat}&lng=${location.lng}&radius=5000`),
-        axios.get(`/api/weather?lat=${location.lat}&lng=${location.lng}`)
+        api.get(`/api/nearby-markets?lat=${location.lat}&lng=${location.lng}&radius=5000`),
+        api.get(`/api/weather?lat=${location.lat}&lng=${location.lng}`)
       ]);
       
       const marketData = marketRes.data;
