@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Mail, Lock, MapPin, Briefcase, FileText, CheckCircle, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
-import api from '../api/config';
+import axios from 'axios';
+import { useLanguage } from '../utils/LanguageContext';
 
 const TraderRegister = ({ onLoginSuccess }) => {
+  const { t } = useLanguage();
   const [isLogin, setIsLogin] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -35,19 +37,19 @@ const TraderRegister = ({ onLoginSuccess }) => {
         ? { email: formData.email, password: formData.password }
         : { ...formData, crops: formData.crops.split(',').map(c => c.trim()) };
 
-      const res = await api.post(endpoint, payload);
+      const res = await axios.post(endpoint, payload);
       
       localStorage.setItem('traderToken', res.data.token);
       localStorage.setItem('traderData', JSON.stringify(res.data.trader));
       
       if (!isLogin) {
-        setSuccess('Registration successful! Your account is pending verification.');
+        setSuccess(t('reg_success'));
         setTimeout(() => onLoginSuccess(res.data.trader), 2000);
       } else {
         onLoginSuccess(res.data.trader);
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'An error occurred. Please try again.');
+      setError(err.response?.data?.error || t('generic_error'));
     } finally {
       setLoading(false);
     }
@@ -64,20 +66,20 @@ const TraderRegister = ({ onLoginSuccess }) => {
             animate={{ opacity: 1, x: 0 }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold mb-6 tracking-widest uppercase border border-emerald-500/20">
-              <CheckCircle size={14} /> Official Trader Portal
+              <CheckCircle size={14} /> {t('trader_portal').toUpperCase()}
             </div>
             <h1 className="text-5xl font-black text-white mb-6 leading-tight">
-              Grow Your <span className="text-emerald-400">Agri-Business</span> With Us
+              {t('trader_branding_title').split('With Us')[0]} <span className="text-emerald-400">{t('trader_branding_title').includes('With Us') ? 'Agri-Business' : t('trader_branding_title').split(' ').slice(-2).join(' ')}</span>
             </h1>
             <p className="text-slate-400 text-lg mb-10 leading-relaxed font-medium">
-              Join India's largest direct-trade platform. Connect with thousands of verified farmers and streamline your procurement process.
+              {t('trader_branding_sub')}
             </p>
 
             <div className="space-y-6">
               {[
-                { icon: CheckCircle, title: 'Verified Badge', desc: 'Get a blue checkmark for trust' },
-                { icon: Briefcase, title: 'Direct Sourcing', desc: 'Buy directly from the source' },
-                { icon: FileText, title: 'GST Integrated', desc: 'Simplified tax compliance' }
+                { icon: CheckCircle, title: t('verified_badge'), desc: t('verified_badge_desc') },
+                { icon: Briefcase, title: t('direct_sourcing'), desc: t('direct_sourcing_desc') },
+                { icon: FileText, title: t('gst_integrated'), desc: t('gst_integrated_desc') }
               ].map((item, i) => (
                 <div key={i} className="flex gap-4">
                   <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-emerald-400 shrink-0 border border-slate-700/50">
@@ -107,13 +109,13 @@ const TraderRegister = ({ onLoginSuccess }) => {
                 onClick={() => setIsLogin(false)}
                 className={`flex-1 py-3 rounded-2xl text-xs font-black transition-all ${!isLogin ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-800 text-slate-500'}`}
               >
-                REGISTER
+                {t('register').toUpperCase()}
               </button>
               <button 
                 onClick={() => setIsLogin(true)}
                 className={`flex-1 py-3 rounded-2xl text-xs font-black transition-all ${isLogin ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-800 text-slate-500'}`}
               >
-                LOGIN
+                {t('login').toUpperCase()}
               </button>
             </div>
 
@@ -133,7 +135,7 @@ const TraderRegister = ({ onLoginSuccess }) => {
 
               {!isLogin && (
                 <div>
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block ml-2">Business Name</label>
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block ml-2">{t('business_name')}</label>
                   <div className="relative">
                     <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
                     <input 
@@ -146,7 +148,7 @@ const TraderRegister = ({ onLoginSuccess }) => {
               )}
 
               <div>
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block ml-2">Business Email</label>
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block ml-2">{t('business_email')}</label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
                   <input 
@@ -158,7 +160,7 @@ const TraderRegister = ({ onLoginSuccess }) => {
               </div>
 
               <div>
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block ml-2">Password</label>
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block ml-2">{t('password')}</label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
                   <input 
@@ -173,7 +175,7 @@ const TraderRegister = ({ onLoginSuccess }) => {
                 <>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block ml-2">Location</label>
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block ml-2">{t('location')}</label>
                       <div className="relative">
                         <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
                         <input 
@@ -184,7 +186,7 @@ const TraderRegister = ({ onLoginSuccess }) => {
                       </div>
                     </div>
                     <div>
-                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block ml-2">GST Number</label>
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block ml-2">{t('gst_number')}</label>
                       <div className="relative">
                         <FileText className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
                         <input 
@@ -197,7 +199,7 @@ const TraderRegister = ({ onLoginSuccess }) => {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block ml-2">Interested Crops (Comma separated)</label>
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block ml-2">{t('interested_crops')}</label>
                     <input 
                       required name="crops" type="text" placeholder="Tomato, Onion, Soybean" 
                       onChange={handleChange}
@@ -214,7 +216,7 @@ const TraderRegister = ({ onLoginSuccess }) => {
               >
                 {loading ? <Loader2 className="animate-spin" size={20} /> : (
                   <>
-                    {isLogin ? 'LOG IN' : 'CREATE ACCOUNT'} <ArrowRight size={18} />
+                    {isLogin ? t('login').toUpperCase() : t('create_account').toUpperCase()} <ArrowRight size={18} />
                   </>
                 )}
               </button>

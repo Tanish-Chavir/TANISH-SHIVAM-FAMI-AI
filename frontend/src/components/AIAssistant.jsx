@@ -15,12 +15,14 @@ import {
   Zap,
   Leaf
 } from 'lucide-react';
+import { useLanguage } from '../utils/LanguageContext';
 
 const AIAssistant = () => {
+  const { t, lang, currentLang } = useLanguage();
   const [messages, setMessages] = useState([
     { 
       type: 'ai', 
-      content: "Namaste! 🙏 I'm your **Advanced Farm AI**. I can help you diagnose crop diseases, suggest fertilizers, or answer any farming queries. How can I assist you today?",
+      content: t('ai_greeting'),
       time: new Date()
     }
   ]);
@@ -32,6 +34,17 @@ const AIAssistant = () => {
   
   const chatEndRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  // Update initial greeting when language changes if no other messages exist
+  useEffect(() => {
+    if (messages.length === 1 && messages[0].type === 'ai') {
+      setMessages([{
+        type: 'ai',
+        content: t('ai_greeting'),
+        time: messages[0].time
+      }]);
+    }
+  }, [lang]);
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -53,6 +66,7 @@ const AIAssistant = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           message: text,
+          language: currentLang?.name || 'English',
           history: messages.slice(1).map(m => ({
             role: m.type === 'ai' ? 'model' : 'user',
             parts: [{ text: m.content }]
@@ -95,7 +109,7 @@ const AIAssistant = () => {
       const response = await fetch('/api/ai/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: scanImage })
+        body: JSON.stringify({ image: scanImage, language: currentLang?.name || 'English' })
       });
 
       const data = await response.json();
@@ -138,7 +152,7 @@ const AIAssistant = () => {
             <button 
               onClick={() => setMessages([messages[0]])}
               className="p-3 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-all"
-              title="Clear Chat"
+              title={t('clear_chat')}
             >
               <Trash2 size={20} />
             </button>
@@ -193,14 +207,14 @@ const AIAssistant = () => {
           {/* Input Area */}
           <div className="p-8 bg-slate-900/60 border-t border-slate-800/50">
             <div className="flex gap-3 mb-4 overflow-x-auto no-scrollbar">
-              {['Best crops for clay soil?', 'Organic pest control', 'Rice blast treatment', 'Fertilizer schedule'].map(chip => (
+              {['chip_soil', 'chip_pest', 'chip_rice', 'chip_fert'].map(key => (
                 <button 
-                  key={chip}
-                  onClick={() => handleSend(chip)}
+                  key={key}
+                  onClick={() => handleSend(t(key))}
                   className="px-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700/50 text-xs text-slate-400 hover:text-emerald-400 hover:border-emerald-500/50 transition-all whitespace-nowrap flex items-center gap-2 group"
                 >
                   <Zap size={14} className="text-slate-600 group-hover:text-emerald-500 transition-colors" />
-                  {chip}
+                  {t(key)}
                 </button>
               ))}
             </div>
@@ -210,7 +224,7 @@ const AIAssistant = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                placeholder="Ask your farming expert..."
+                placeholder={t('ask_placeholder')}
                 className="w-full bg-slate-950/50 border border-slate-800 text-white pl-6 pr-16 py-5 rounded-[1.5rem] focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/50 transition-all text-base placeholder:text-slate-600"
               />
               <button 
@@ -234,8 +248,8 @@ const AIAssistant = () => {
                 <Camera size={24} />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white tracking-tight">Plant Scanner</h3>
-                <p className="text-xs text-slate-500 font-medium">Instant Disease Detection</p>
+                <h3 className="text-lg font-bold text-white tracking-tight">{t('plant_scanner')}</h3>
+                <p className="text-xs text-slate-500 font-medium">{t('instant_detection')}</p>
               </div>
             </div>
 
@@ -248,8 +262,8 @@ const AIAssistant = () => {
                   <Camera size={40} />
                 </div>
                 <div className="text-center">
-                  <div className="text-base font-bold text-slate-300">Snap or Upload</div>
-                  <div className="text-xs text-slate-500 mt-2">Works with leaves & crops</div>
+                  <div className="text-base font-bold text-slate-300">{t('snap_upload')}</div>
+                  <div className="text-xs text-slate-500 mt-2">{t('leaf_crop_hint')}</div>
                 </div>
                 <input 
                   type="file" 
@@ -273,7 +287,7 @@ const AIAssistant = () => {
                     <div className="absolute inset-0 bg-emerald-500/10 backdrop-blur-[4px] flex flex-col items-center justify-center">
                       <div className="w-full h-1.5 bg-emerald-500 absolute top-0 animate-[scan_2s_ease-in-out_infinite] shadow-[0_0_20px_rgba(16,185,129,1)]" />
                       <Loader2 className="animate-spin text-emerald-400 mb-4" size={48} />
-                      <span className="text-xs font-black text-white uppercase tracking-[0.2em] drop-shadow-lg">Scanning Tissue...</span>
+                      <span className="text-xs font-black text-white uppercase tracking-[0.2em] drop-shadow-lg">{t('scanning')}</span>
                     </div>
                   )}
                 </div>
@@ -283,7 +297,7 @@ const AIAssistant = () => {
                     onClick={startScan}
                     className="w-full py-5 rounded-2xl bg-emerald-500 text-white font-bold flex items-center justify-center gap-3 hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
                   >
-                    <Sparkles size={22} /> Run Diagnosis
+                    <Sparkles size={22} /> {t('run_diagnosis')}
                   </button>
                 )}
 
@@ -296,10 +310,10 @@ const AIAssistant = () => {
                     >
                       <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 ring-1 ring-emerald-500/10">
                          <div className="flex justify-between items-center mb-2">
-                           <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Diagnosis Result</span>
+                           <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">{t('diagnosis_result')}</span>
                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/20">
                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
-                             <span className="text-[10px] font-bold text-emerald-400">{scanResult.confidence} Match</span>
+                             <span className="text-[10px] font-bold text-emerald-400">{scanResult.confidence} {t('confidence_match')}</span>
                            </div>
                          </div>
                          <div className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
@@ -311,7 +325,7 @@ const AIAssistant = () => {
                       <div className="space-y-4">
                         <div className="flex items-center gap-2 text-xs font-black text-slate-500 uppercase tracking-widest">
                           <CheckCircle2 size={16} className="text-emerald-500" />
-                          Recommended Actions
+                          {t('recommended_actions')}
                         </div>
                         <div className="space-y-3">
                           {scanResult.treatment.map((step, i) => (
@@ -334,9 +348,9 @@ const AIAssistant = () => {
           <div className="bg-amber-500/5 border border-amber-500/20 rounded-[2rem] p-6 flex gap-4 backdrop-blur-xl">
             <AlertCircle className="text-amber-500 shrink-0" size={24} />
             <div className="space-y-1">
-              <h4 className="text-xs font-bold text-amber-500 uppercase tracking-wider">Advisory Note</h4>
+              <h4 className="text-xs font-bold text-amber-500 uppercase tracking-wider">{t('advisory_note')}</h4>
               <p className="text-[11px] text-amber-500/70 leading-relaxed font-medium">
-                AI diagnosis is for guidance. Always cross-verify with your local Krishi Kendra for critical interventions.
+                {t('advisory_text')}
               </p>
             </div>
           </div>

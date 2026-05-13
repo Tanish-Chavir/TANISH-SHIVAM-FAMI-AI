@@ -101,7 +101,7 @@ const Dashboard = () => {
                 : 'text-slate-400 hover:bg-slate-700/50'
               }`}
             >
-              <span>{cat.icon}</span> {cat.name}
+              <span>{cat.icon}</span> {t(cat.name)}
             </button>
           ))}
         </div>
@@ -139,10 +139,10 @@ const Dashboard = () => {
                 >
                   <div className={`absolute top-0 left-0 w-1.5 h-full ${
                     id === 'kharif' ? 'bg-emerald-500' : id === 'rabi' ? 'bg-blue-500' : 'bg-amber-500'
-                  }`} />
+                   }`} />
                   <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">{season.icon}</div>
-                  <div className="font-bold text-white">{season.name}</div>
-                  <div className="text-xs text-slate-400">{season.period}</div>
+                  <div className="font-bold text-white">{t(season.name)}</div>
+                  <div className="text-xs text-slate-400">{t(season.period)}</div>
                 </button>
               ))}
             </div>
@@ -161,14 +161,14 @@ const Dashboard = () => {
                   onClick={() => setSelectedState(name)}
                   className="p-4 rounded-2xl bg-slate-800/40 border border-slate-700/50 text-left hover:bg-slate-700/50 transition-all group"
                 >
-                  <div className="text-white font-bold group-hover:text-emerald-400 transition-colors">{name}</div>
+                  <div className="text-white font-bold group-hover:text-emerald-400 transition-colors">{t(name)}</div>
                   <div className="text-xs text-slate-500 mt-1 flex items-center gap-1">
                     <span className={`w-1.5 h-1.5 rounded-full ${
                       data.region === 'North' ? 'bg-blue-400' : 
                       data.region === 'South' ? 'bg-emerald-400' : 
                       data.region === 'West' ? 'bg-amber-400' : 'bg-purple-400'
                     }`} />
-                    {data.region} India
+                    {t(data.region)} {t('india')}
                   </div>
                 </motion.button>
               ))}
@@ -186,7 +186,7 @@ const Dashboard = () => {
               {currentPrices.map((item, i) => (
                 <div key={item.crop} className="p-5 hover:bg-slate-700/20 transition-all">
                   <div className="flex justify-between items-start mb-2">
-                    <div className="font-bold text-white">{item.crop}</div>
+                    <div className="font-bold text-white">{t(item.crop)}</div>
                     <div className={`flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full ${
                       item.trend === 'up' ? 'text-emerald-400 bg-emerald-500/10' : 'text-red-400 bg-red-500/10'
                     }`}>
@@ -243,7 +243,7 @@ const Dashboard = () => {
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">Regional Insight</div>
-                    <h2 className="text-3xl font-bold text-white">{selectedState}</h2>
+                    <h2 className="text-3xl font-bold text-white">{t(selectedState)}</h2>
                   </div>
                   <button 
                     onClick={() => setSelectedState(null)}
@@ -255,12 +255,12 @@ const Dashboard = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 rounded-2xl bg-slate-800/50">
-                    <div className="text-xs text-slate-500 mb-1">Capital</div>
-                    <div className="text-white font-medium">{STATES_DATA[selectedState].capital}</div>
+                    <div className="text-xs text-slate-500 mb-1">{t('capital')}</div>
+                    <div className="text-white font-medium">{t(STATES_DATA[selectedState].capital)}</div>
                   </div>
                   <div className="p-4 rounded-2xl bg-slate-800/50">
-                    <div className="text-xs text-slate-500 mb-1">Climate</div>
-                    <div className="text-white font-medium">{STATES_DATA[selectedState].avgTemp} Avg.</div>
+                    <div className="text-xs text-slate-500 mb-1">{t('climate')}</div>
+                    <div className="text-white font-medium">{STATES_DATA[selectedState].avgTemp} {t('avg')}</div>
                   </div>
                 </div>
 
@@ -269,11 +269,11 @@ const Dashboard = () => {
                    <div className="space-y-3">
                      {Object.entries(STATES_DATA[selectedState].seasons).map(([season, crops]) => (
                        <div key={season} className="flex gap-4 items-center">
-                         <div className="w-20 text-xs font-bold text-slate-500 uppercase">{season}</div>
+                         <div className="w-20 text-xs font-bold text-slate-500 uppercase">{t(season)}</div>
                          <div className="flex flex-wrap gap-2">
                            {crops.map(crop => (
                              <span key={crop} className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-medium">
-                               {crop}
+                               {t(crop)}
                              </span>
                            ))}
                          </div>

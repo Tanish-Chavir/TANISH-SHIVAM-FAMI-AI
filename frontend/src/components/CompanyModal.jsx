@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { X, MapPin, Phone, Mail, Send, CheckCircle } from 'lucide-react';
+import { X, MapPin, TrendingUp, ShieldCheck, Mail, Send, ChevronRight, Package, Scale, IndianRupee } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import { useLanguage } from '../utils/LanguageContext';
 
-const CompanyModal = ({ company, onClose, onSuccess }) => {
+const CompanyModal = ({ company, onClose }) => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     farmerName: '',
     crop: company.crops[0] || '',
@@ -11,25 +13,24 @@ const CompanyModal = ({ company, onClose, onSuccess }) => {
     expectedPrice: '',
     location: ''
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setLoading(true);
+    setError(null);
     try {
-      await axios.post('/api/sell-request', {
-        ...formData,
-        companyId: company._id
-      });
-      setSubmitted(true);
-      setTimeout(() => {
-        onSuccess();
-        onClose();
-      }, 2000);
+      const res = await axios.post('/api/requests', { ...formData, companyId: company._id });
+      if (res.data) {
+        setSuccess(true);
+        setTimeout(onClose, 2000);
+      }
     } catch (err) {
-      alert('Error submitting request');
-      setIsSubmitting(false);
+      setError(t('request_failed'));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -62,14 +63,22 @@ const CompanyModal = ({ company, onClose, onSuccess }) => {
             <div className="w-16 h-16 bg-emerald-500 text-white rounded-3xl flex items-center justify-center text-3xl font-bold mb-6">
               {company.name[0]}
             </div>
-            <h2 className="text-2xl font-bold text-white mb-2">{company.name}</h2>
-            <div className="flex items-center gap-2 text-emerald-400 text-sm mb-6">
-              <CheckCircle size={14} /> Verified Enterprise
+            
+            <div className="flex-1 mb-6">
+              <div className="flex items-center gap-2 text-emerald-400 text-xs font-black uppercase tracking-widest mb-1">
+                <ShieldCheck size={14} /> {t('verified_partner')}
+              </div>
+              <h2 className="text-3xl font-black text-white leading-tight">{t(company.name.toLowerCase().replace(/\s+/g, '')) || company.name}</h2>
             </div>
 
-            <p className="text-slate-400 text-sm leading-relaxed mb-8">
-              {company.description}
-            </p>
+            <div className="bg-slate-800/30 p-6 rounded-[2rem] border border-slate-800 mb-8">
+              <h3 className="text-white font-bold mb-2 flex items-center gap-2 uppercase text-xs tracking-widest">
+                <Package size={16} className="text-emerald-400" /> {t('about_buyer')}
+              </h3>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                {t('desc_' + company.name.toLowerCase().replace(/\s+/g, '')) || company.description}
+              </p>
+            </div>
 
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-slate-300 text-sm">
@@ -81,100 +90,76 @@ const CompanyModal = ({ company, onClose, onSuccess }) => {
                 {company.contactEmail}
               </div>
             </div>
-
-            <div className="mt-10 p-4 bg-slate-800/50 rounded-2xl border border-slate-700/50">
-              <span className="text-xs text-slate-500 uppercase tracking-widest block mb-1">Buying Prices</span>
-              <span className="text-xl font-bold text-emerald-400">{company.priceRange}</span>
-            </div>
           </div>
 
           {/* Right Side: Form */}
-          <div className="md:w-7/12 p-8">
+          <div className="md:w-7/12">
             <AnimatePresence mode="wait">
-              {submitted ? (
+              {success ? (
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="h-full flex flex-col items-center justify-center text-center py-10"
+                  className="h-full flex flex-col items-center justify-center text-center py-10 px-8"
                 >
                   <div className="w-20 h-20 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mb-6">
                     <CheckCircle size={48} />
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-2">Request Sent!</h3>
-                  <p className="text-slate-400">The company has been notified. You can track this in "My Requests".</p>
+                  <h3 className="text-2xl font-bold text-white mb-2">{t('request_sent')}</h3>
+                  <p className="text-slate-400">{t('request_success_desc')}</p>
                 </motion.div>
               ) : (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <h3 className="text-xl font-bold text-white mb-6">Send Sell Request</h3>
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    <div>
-                      <label className="text-xs text-slate-500 uppercase tracking-wider mb-2 block ml-1">Full Name</label>
-                      <input 
-                        required
-                        type="text" 
-                        value={formData.farmerName}
-                        onChange={(e) => setFormData({...formData, farmerName: e.target.value})}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50" 
-                        placeholder="Enter your name"
-                      />
-                    </div>
-                    
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-8 space-y-6">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-1 h-6 bg-emerald-500 rounded-full"></div>
+                    <h3 className="text-xl font-bold text-white uppercase tracking-tight">{t('sell_proposal')}</h3>
+                  </div>
+
+                  <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-xs text-slate-500 uppercase tracking-wider mb-2 block ml-1">Select Crop</label>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">{t('select_crop')}</label>
                         <select 
-                          className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                           value={formData.crop}
                           onChange={(e) => setFormData({...formData, crop: e.target.value})}
                         >
-                          {company.crops.map(c => <option key={c} value={c}>{c}</option>)}
+                          {company.crops.map(crop => (
+                            <option key={crop} value={crop}>{t(crop)}</option>
+                          ))}
                         </select>
                       </div>
-                      <div>
-                        <label className="text-xs text-slate-500 uppercase tracking-wider mb-2 block ml-1">Quantity (Qntl)</label>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">{t('quantity')} ({t('qntl')})</label>
                         <input 
-                          required
-                          type="number" 
-                          value={formData.quantity}
+                          type="number"
+                          placeholder={company.minQuantity?.toString() || "25"}
+                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                           onChange={(e) => setFormData({...formData, quantity: e.target.value})}
-                          className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50" 
-                          placeholder="e.g. 25"
                         />
                       </div>
                     </div>
 
-                    <div>
-                      <label className="text-xs text-slate-500 uppercase tracking-wider mb-2 block ml-1">Expected Price (₹/Qntl)</label>
-                      <input 
-                        required
-                        type="number" 
-                        value={formData.expectedPrice}
-                        onChange={(e) => setFormData({...formData, expectedPrice: e.target.value})}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50" 
-                        placeholder="e.g. 3200"
-                      />
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">{t('expected_price')} (₹/{t('qntl')})</label>
+                      <div className="relative">
+                        <IndianRupee size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                        <input 
+                          type="number"
+                          placeholder="e.g. 4500"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-12 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                          onChange={(e) => setFormData({...formData, expectedPrice: e.target.value})}
+                        />
+                      </div>
                     </div>
 
-                    <div>
-                      <label className="text-xs text-slate-500 uppercase tracking-wider mb-2 block ml-1">Your Location</label>
-                      <input 
-                        required
-                        type="text" 
-                        value={formData.location}
-                        onChange={(e) => setFormData({...formData, location: e.target.value})}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50" 
-                        placeholder="City, State"
-                      />
-                    </div>
+                    {error && <p className="text-red-400 text-xs">{error}</p>}
 
                     <button 
-                      disabled={isSubmitting}
                       type="submit"
-                      className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_10px_20px_-10px_rgba(16,185,129,0.5)] active:scale-[0.98] disabled:opacity-50"
+                      disabled={loading}
+                      className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-white rounded-2xl font-black text-sm transition-all shadow-xl shadow-emerald-500/20 uppercase tracking-widest flex items-center justify-center gap-3"
                     >
-                      {isSubmitting ? 'Sending...' : (
-                        <>Submit Request <Send size={18} /></>
-                      )}
+                      {loading ? t('sending') : t('submit_proposal')} <ChevronRight size={18} />
                     </button>
                   </form>
                 </motion.div>

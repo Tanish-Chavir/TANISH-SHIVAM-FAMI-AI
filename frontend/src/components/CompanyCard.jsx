@@ -1,8 +1,10 @@
-import React from 'react';
 import { MapPin, TrendingUp, ChevronRight, CheckCircle2, ArrowUpRight, Scale } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../utils/LanguageContext';
 
 const CompanyCard = ({ company, onClick, index }) => {
+  const { t } = useLanguage();
+  
   return (
     <motion.div
       layout
@@ -22,13 +24,13 @@ const CompanyCard = ({ company, onClick, index }) => {
         </div>
         <div className="bg-emerald-500/10 text-emerald-400 text-[10px] font-black px-4 py-1.5 rounded-full flex items-center gap-1.5 border border-emerald-500/20 uppercase tracking-widest">
           <CheckCircle2 size={12} className="fill-emerald-500 text-white" />
-          VERIFIED
+          {t('verified').toUpperCase()}
         </div>
       </div>
 
       <div className="flex-grow">
         <h3 className="text-2xl font-black text-white mb-2 group-hover:text-emerald-400 transition-colors tracking-tight">
-          {company.name}
+          {t(company.name.toLowerCase().replace(/\s+/g, '')) || company.name}
         </h3>
         
         <div className="flex items-center gap-2 text-slate-500 text-sm mb-6 font-bold">
@@ -39,16 +41,16 @@ const CompanyCard = ({ company, onClick, index }) => {
         <div className="space-y-4 pt-6 border-t border-slate-800/50">
           <div className="flex justify-between items-center bg-slate-900/50 p-3 rounded-2xl border border-slate-800">
             <span className="text-slate-500 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
-              <TrendingUp size={14} className="text-emerald-400" /> PRICE RANGE
+              <TrendingUp size={14} className="text-emerald-400" /> {t('price_range')}
             </span>
             <span className="text-emerald-400 font-black text-sm">{company.priceRange}</span>
           </div>
           
           <div className="flex justify-between items-center px-2">
             <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-              <Scale size={14} /> MIN. QUANTITY
+              <Scale size={14} /> {t('min_quantity')}
             </span>
-            <span className="text-slate-200 font-black text-sm">{company.minQuantity} <span className="text-[10px] text-slate-500">QNTL</span></span>
+            <span className="text-slate-200 font-black text-sm">{company.minQuantity} <span className="text-[10px] text-slate-500">{t('qntl')}</span></span>
           </div>
         </div>
       </div>
@@ -78,7 +80,7 @@ const CompanyCard = ({ company, onClick, index }) => {
         </div>
         
         <button className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-emerald-500 hover:text-white text-emerald-400 font-black text-[10px] rounded-xl transition-all uppercase tracking-widest group/btn border border-emerald-500/10">
-          PROPOSE <ArrowUpRight size={14} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+          {t('propose')} <ArrowUpRight size={14} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
         </button>
       </div>
     </motion.div>

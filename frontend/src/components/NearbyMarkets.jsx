@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { MapPin, Navigation, Info, Cloud, Droplets, Wind, Search, Car, Bike, Bus, User, ExternalLink, RefreshCw, Layers, AlertCircle, Map as MapIcon, ChevronRight } from 'lucide-react';
 import api from '../api/config';
+import { useLanguage } from '../utils/LanguageContext';
 
 const { BaseLayer } = LayersControl;
 
@@ -33,6 +34,7 @@ function ChangeView({ center, zoom }) {
 }
 
 const NearbyMarkets = () => {
+  const { t } = useLanguage();
   const [userLoc, setUserLoc] = useState({ lat: 28.6139, lng: 77.2090 }); // Default Delhi
   const [mapCenter, setMapCenter] = useState({ lat: 28.6139, lng: 77.2090 });
   const [markets, setMarkets] = useState([]);
@@ -40,7 +42,7 @@ const NearbyMarkets = () => {
   const [loading, setLoading] = useState(true);
   const [locating, setLocating] = useState(false);
   const [error, setError] = useState(null);
-  const [searchStatus, setSearchStatus] = useState('Initializing...');
+  const [searchStatus, setSearchStatus] = useState(t('detecting_location'));
   const [selectedMarketId, setSelectedMarketId] = useState(null);
   
   const markerRefs = useRef({});
@@ -51,7 +53,7 @@ const NearbyMarkets = () => {
 
   const getLocation = () => {
     setLocating(true);
-    setSearchStatus('Detecting your location...');
+    setSearchStatus(t('detecting_location'));
     setError(null);
     
     if (navigator.geolocation) {
@@ -91,11 +93,11 @@ const NearbyMarkets = () => {
   const fetchData = async (location) => {
     try {
       setLoading(true);
-      setSearchStatus('Fetching market data...');
+      setSearchStatus(t('fetching_markets'));
       
       const [marketRes, weatherRes] = await Promise.all([
-        api.get(`/api/nearby-markets?lat=${location.lat}&lng=${location.lng}&radius=5000`),
-        api.get(`/api/weather?lat=${location.lat}&lng=${location.lng}`)
+        api.get(`/nearby-markets?lat=${location.lat}&lng=${location.lng}&radius=5000`),
+        api.get(`/weather?lat=${location.lat}&lng=${location.lng}`)
       ]);
       
       const marketData = marketRes.data;
@@ -146,7 +148,7 @@ const NearbyMarkets = () => {
             animate={{ opacity: 1, x: 0 }}
             className="text-4xl md:text-5xl font-black text-white tracking-tight"
           >
-            Market <span className="text-emerald-400">Locator</span>
+            {t('market_locator').split(' ')[0]} <span className="text-emerald-400">{t('market_locator').split(' ')[1]}</span>
           </motion.h1>
           <div className="flex flex-col gap-2 mt-3">
             <p className="text-slate-400 flex items-center gap-2 font-medium">
@@ -171,7 +173,7 @@ const NearbyMarkets = () => {
             className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-emerald-500 text-white rounded-[2rem] hover:bg-emerald-600 transition-all text-sm font-black shadow-xl shadow-emerald-500/20 disabled:opacity-50"
           >
             {locating || loading ? <RefreshCw className="animate-spin" size={20} /> : <Navigation size={20} />}
-            {locating ? "LOCATING..." : loading ? "SEARCHING..." : "MY LOCATION"}
+            {locating ? "LOCATING..." : loading ? "SEARCHING..." : t('my_location').toUpperCase()}
           </button>
 
           {weather && (
@@ -280,7 +282,7 @@ const NearbyMarkets = () => {
         <div className="space-y-4 overflow-y-auto h-[650px] pr-2 custom-scrollbar">
           <div className="sticky top-0 bg-[#0f172a] py-6 z-20 border-b border-slate-800/50 mb-6 flex items-center justify-between">
             <h3 className="text-2xl font-black text-white flex items-center gap-3">
-              <Navigation className="text-emerald-400" size={28} /> CLOSEST MANDIS
+              <Navigation className="text-emerald-400" size={28} /> {t('closest_mandis').toUpperCase()}
             </h3>
             <span className="text-[11px] font-black bg-slate-800 text-slate-400 px-4 py-1.5 rounded-full uppercase tracking-widest">{markets.length} LISTED</span>
           </div>

@@ -50,7 +50,7 @@ const Navbar = ({ activeTab, setActiveTab, currentTrader, onLogout }) => {
                 </div>
                 <div className="hidden sm:block">
                   <div className="text-xs font-bold text-white leading-none">{currentTrader.name}</div>
-                  <div className="text-[10px] text-emerald-400 uppercase tracking-tighter">Verified Trader</div>
+                  <div className="text-[10px] text-emerald-400 uppercase tracking-tighter">{t('verified_badge')}</div>
                 </div>
               </div>
               <button 
@@ -70,7 +70,7 @@ const Navbar = ({ activeTab, setActiveTab, currentTrader, onLogout }) => {
                   : 'bg-white text-slate-900 hover:bg-emerald-500 hover:text-white'
               }`}
             >
-              <User size={16} /> TRADER PORTAL
+              <User size={16} /> {t('trader_portal').toUpperCase()}
             </button>
           )}
 

@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import api from '../api/config';
-import { motion } from 'framer-motion';
 import { Clock, CheckCircle2, XCircle, ChevronRight } from 'lucide-react';
+import { useLanguage } from '../utils/LanguageContext';
 
 const RequestStatus = () => {
+  const { t } = useLanguage();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -13,7 +12,7 @@ const RequestStatus = () => {
 
   const fetchRequests = async () => {
     try {
-      const res = await api.get('/api/requests');
+      const res = await axios.get('/api/requests');
       setRequests(res.data);
       setLoading(false);
     } catch (err) {
@@ -41,8 +40,8 @@ const RequestStatus = () => {
   return (
     <div className="pt-28 pb-10 px-6 max-w-5xl mx-auto">
       <div className="mb-10">
-        <h1 className="text-4xl font-bold text-white mb-2">My Sell Requests</h1>
-        <p className="text-slate-400">Track the status of your crop sale requests.</p>
+        <h1 className="text-4xl font-bold text-white mb-2">{t('my_requests')}</h1>
+        <p className="text-slate-400">{t('track_requests_sub')}</p>
       </div>
 
       {loading ? (
@@ -52,8 +51,8 @@ const RequestStatus = () => {
       ) : requests.length === 0 ? (
         <div className="text-center py-20 glass-card rounded-[2rem]">
           <Clock className="mx-auto text-slate-600 mb-4" size={48} />
-          <h3 className="text-xl font-medium text-slate-300">No requests yet</h3>
-          <p className="text-slate-500 mt-2">Go to the marketplace to find buyers for your crops.</p>
+          <h3 className="text-xl font-medium text-slate-300">{t('no_requests')}</h3>
+          <p className="text-slate-500 mt-2">{t('no_requests_desc')}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -70,22 +69,22 @@ const RequestStatus = () => {
                   {req.crop === 'tomato' ? '🍅' : req.crop === 'soybean' ? '🌱' : req.crop === 'onion' ? '🧅' : '🌾'}
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-lg capitalize">{req.crop} Offer</h3>
-                  <p className="text-slate-500 text-sm">To: <span className="text-slate-300">{req.companyId?.name || 'Unknown Company'}</span></p>
+                  <h3 className="text-white font-bold text-lg capitalize">{t(req.crop)} {t('offer')}</h3>
+                  <p className="text-slate-500 text-sm">{t('to')}: <span className="text-slate-300">{t(req.companyId?.name?.toLowerCase().replace(/\s+/g, '')) || req.companyId?.name || 'Unknown Company'}</span></p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-8 text-sm">
                 <div>
-                  <span className="text-slate-500 block mb-1">Quantity</span>
-                  <span className="text-white font-medium">{req.quantity} Qntl</span>
+                  <span className="text-slate-500 block mb-1">{t('quantity')}</span>
+                  <span className="text-white font-medium">{req.quantity} {t('qntl')}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 block mb-1">Price</span>
+                  <span className="text-slate-500 block mb-1">{t('price')}</span>
                   <span className="text-emerald-400 font-bold">₹{req.expectedPrice}/Q</span>
                 </div>
                 <div className="hidden md:block">
-                  <span className="text-slate-500 block mb-1">Date</span>
+                  <span className="text-slate-500 block mb-1">{t('date')}</span>
                   <span className="text-slate-300">{new Date(req.submissionDate).toLocaleDateString()}</span>
                 </div>
               </div>
@@ -93,7 +92,7 @@ const RequestStatus = () => {
               <div className="flex items-center justify-between md:justify-end gap-4 border-t md:border-t-0 border-slate-800 pt-4 md:pt-0">
                 <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-bold uppercase tracking-wider ${getStatusStyle(req.status)}`}>
                   {getStatusIcon(req.status)}
-                  {req.status}
+                  {t(req.status)}
                 </div>
                 <ChevronRight className="text-slate-700 hidden md:block" />
               </div>

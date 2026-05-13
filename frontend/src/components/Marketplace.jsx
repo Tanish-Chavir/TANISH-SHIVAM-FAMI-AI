@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../api/config';
+import axios from 'axios';
 import { Search, MapPin, TrendingUp, Package, Filter, ChevronRight, Star, ArrowRight } from 'lucide-react';
 import CompanyCard from './CompanyCard';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -28,7 +28,7 @@ const Marketplace = ({ onSelectCompany }) => {
   const fetchCompanies = async () => {
     try {
       setLoading(true);
-      const res = await api.get(`/api/companies${selectedCrop ? `?crop=${selectedCrop}` : ''}`);
+      const res = await axios.get(`/api/companies${selectedCrop ? `?crop=${selectedCrop}` : ''}`);
       // Handle different response formats (Array or {value: Array})
       let data = res.data;
       if (data && data.value && Array.isArray(data.value)) {
@@ -66,7 +66,7 @@ const Marketplace = ({ onSelectCompany }) => {
             animate={{ opacity: 1, y: 0 }}
             className="text-5xl md:text-6xl font-black text-white mb-6 leading-[1.1] tracking-tight"
           >
-            Direct Trade <span className="text-emerald-300">Marketplace</span>
+            {t('marketplace_title').split(' ')[0]} <span className="text-emerald-300">{t('marketplace_title').split(' ').slice(1).join(' ')}</span>
           </motion.h1>
           
           <motion.p 
@@ -75,7 +75,7 @@ const Marketplace = ({ onSelectCompany }) => {
             transition={{ delay: 0.1 }}
             className="text-emerald-100/80 text-lg mb-10 font-medium leading-relaxed"
           >
-            Skip the middlemen. Connect directly with global food processors and exporters at verified premium rates.
+            {t('marketplace_sub')}
           </motion.p>
 
           <div className="flex flex-wrap gap-4">
@@ -103,7 +103,7 @@ const Marketplace = ({ onSelectCompany }) => {
               onClick={() => setSelectedCrop('')}
               className={`px-6 py-2.5 rounded-2xl text-sm font-black transition-all whitespace-nowrap ${!selectedCrop ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
             >
-              ALL CROPS
+              {t('all_crops').toUpperCase()}
             </button>
             {crops.map(crop => (
               <button 
@@ -111,7 +111,7 @@ const Marketplace = ({ onSelectCompany }) => {
                 onClick={() => setSelectedCrop(crop.id)}
                 className={`flex items-center gap-2 px-6 py-2.5 rounded-2xl text-sm font-black transition-all whitespace-nowrap ${selectedCrop === crop.id ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
               >
-                <span>{crop.icon}</span> {crop.name.toUpperCase()}
+                <span>{crop.icon}</span> {t(crop.name).toUpperCase()}
               </button>
             ))}
           </div>
@@ -122,7 +122,7 @@ const Marketplace = ({ onSelectCompany }) => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
             <input 
               type="text" 
-              placeholder="Search companies..." 
+              placeholder={t('search_companies')} 
               className="w-full bg-slate-900 border border-slate-700 rounded-2xl py-3 pl-12 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all font-medium"
             />
           </div>
@@ -165,9 +165,9 @@ const Marketplace = ({ onSelectCompany }) => {
                 <div className="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner border border-slate-800">
                   <Package className="text-slate-700" size={48} />
                 </div>
-                <h3 className="text-2xl font-black text-white mb-2 tracking-tight uppercase">No Buyers Found</h3>
-                <p className="text-slate-500 text-sm max-w-sm mx-auto leading-relaxed">We couldn't find any active companies for {selectedCrop ? selectedCrop : 'this category'} right now.</p>
-                <button onClick={() => setSelectedCrop('')} className="mt-8 text-emerald-400 text-sm font-black underline hover:text-emerald-300">VIEW ALL DEALS</button>
+                <h3 className="text-2xl font-black text-white mb-2 tracking-tight uppercase">{t('no_buyers')}</h3>
+                <p className="text-slate-500 text-sm max-w-sm mx-auto leading-relaxed">{t('no_buyers_desc')} {selectedCrop ? t(selectedCrop) : t('this_category')}</p>
+                <button onClick={() => setSelectedCrop('')} className="mt-8 text-emerald-400 text-sm font-black underline hover:text-emerald-300">{t('view_all_deals').toUpperCase()}</button>
               </motion.div>
             )}
           </AnimatePresence>
@@ -198,7 +198,7 @@ const Marketplace = ({ onSelectCompany }) => {
              </div>
           </div>
           <button className="px-10 py-5 bg-white text-slate-900 rounded-[2rem] font-black text-sm hover:bg-emerald-500 hover:text-white transition-all shadow-xl shadow-white/5 uppercase tracking-widest flex items-center justify-center gap-3">
-             Become a Buyer <ArrowRight size={20} />
+             {t('become_buyer')} <ArrowRight size={20} />
           </button>
         </div>
       </motion.div>

@@ -273,7 +273,7 @@ app.get('/api/requests', async (req, res) => {
 // POST /api/ai/chat
 app.post('/api/ai/chat', async (req, res) => {
   try {
-    const { message, history } = req.body;
+    const { message, history, language = 'English' } = req.body;
     
     const chat = model.startChat({
       history: history || [],
@@ -282,7 +282,8 @@ app.post('/api/ai/chat', async (req, res) => {
       },
     });
 
-    const result = await chat.sendMessage(message);
+    const promptWithLanguage = `[Selected Language: ${language}] Respond to the following message in the specified language: ${message}`;
+    const result = await chat.sendMessage(promptWithLanguage);
     const response = await result.response;
     res.json({ text: response.text() });
   } catch (err) {
@@ -294,7 +295,7 @@ app.post('/api/ai/chat', async (req, res) => {
 // POST /api/ai/scan
 app.post('/api/ai/scan', async (req, res) => {
   try {
-    const { image } = req.body; // base64 string
+    const { image, language = 'English' } = req.body; // base64 string
     if (!image) return res.status(400).json({ error: "Image is required" });
 
     // Extract base64 data
@@ -304,8 +305,11 @@ app.post('/api/ai/scan', async (req, res) => {
     1. Disease Name (if any)
     2. Confidence Level
     3. Detailed Treatment Steps (bullet points)
+    
+    CRITICAL: You MUST provide all text descriptions in the following language: ${language}.
+    
     Format as JSON: { "disease": "...", "confidence": "...", "treatment": ["...", "..."] }
-    If no disease is found, indicate "Healthy" and provide general maintenance tips.`;
+    If no disease is found, indicate "Healthy" (translated) and provide general maintenance tips.`;
 
     const result = await model.generateContent([
       prompt,
